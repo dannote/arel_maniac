@@ -32,4 +32,19 @@ RSpec.describe ArelManiac::Unionize do
     sql = relation.to_sql
     expect(sql).to match(/INTERSECT/i)
   end
+
+  it "executes UNION and returns results" do
+    results = Land.where(region: "77").union(Land.where(region: "50")).to_a
+    expect(results.map(&:region)).to contain_exactly("77", "50")
+  end
+
+  it "executes UNION ALL with duplicates" do
+    results = Land.where(region: "77").union_all(Land.where(region: "77")).to_a
+    expect(results.size).to eq(2)
+  end
+
+  it "executes EXCEPT and returns difference" do
+    results = Land.all.union_except(Land.where(region: "50")).to_a
+    expect(results.map(&:region)).to contain_exactly("77", "40")
+  end
 end

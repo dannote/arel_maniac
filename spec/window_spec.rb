@@ -29,4 +29,17 @@ RSpec.describe ArelManiac::Window do
     top_per_category = results.select { |r| r[:rank] == 1 }
     expect(top_per_category.size).to eq(2)
   end
+
+  it "supports multiple windows" do
+    sql = Land
+      .define_window(:w1).partition_by(:land_category)
+      .define_window(:w2).partition_by(:region)
+      .select("lands.*")
+      .select_window(:row_number, over: :w1, as: :rank1)
+      .select_window(:count, over: :w2, as: :cnt)
+      .to_sql
+
+    expect(sql).to match(/WINDOW "w1" AS/)
+    expect(sql).to match(/"w2" AS/)
+  end
 end

@@ -25,4 +25,17 @@ RSpec.describe ArelManiac::AnyOf do
     expect(results.size).to eq(1)
     expect(results.first.region).to eq("40")
   end
+
+  it "handles a single scope" do
+    results = Land.any_of(Land.where(region: "77"))
+    expect(results.size).to eq(1)
+  end
+
+  it "works with hash conditions" do
+    results = Land.any_of(
+      Land.where(region: "77"),
+      Land.where(region: "50")
+    )
+    expect(results.map(&:region)).to contain_exactly("77", "50")
+  end
 end

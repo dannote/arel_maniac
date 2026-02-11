@@ -8,6 +8,7 @@ module ArelManiac
 
   autoload :DistinctOn
   autoload :FastCount
+  autoload :EstimatedCount
   autoload :Lateral
   autoload :Tablesample
   autoload :Unionize
@@ -32,6 +33,7 @@ ActiveRecord::Relation.include ArelManiac::Unionize
 ActiveRecord::Relation.include ArelManiac::AnyOf
 ActiveRecord::Relation.include ArelManiac::Window
 ActiveRecord::Base.extend ArelManiac::FastCount
+ActiveRecord::Relation.include ArelManiac::EstimatedCount
 
 ActiveRecord::Querying.delegate :distinct_on, :lateral_join, :tablesample,
   :union, :union_all, :union_except, :union_intersect,

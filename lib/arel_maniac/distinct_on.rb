@@ -18,6 +18,26 @@ module ArelManiac
       self
     end
 
+    def count(column_name = nil)
+      if distinct_on_values.empty?
+        super
+      else
+        raise ArgumentError, "Cannot specify column_name with distinct_on" if column_name && column_name != :all
+
+        scope = spawn
+        scope.distinct_on_values = FROZEN_EMPTY_ARRAY
+        columns = resolve_distinct_on_columns.map { |col|
+          col.respond_to?(:relation) ? %("#{col.relation.name}"."#{col.name}") : col.to_s
+        }
+
+        if columns.size == 1
+          scope.count("distinct #{columns.first}")
+        else
+          unscoped.from("(#{scope.select("DISTINCT ON (#{columns.join(", ")}) 1").to_sql}) t").count
+        end
+      end
+    end
+
     def distinct_on_values
       @values[:distinct_on] || FROZEN_EMPTY_ARRAY
     end

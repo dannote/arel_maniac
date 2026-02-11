@@ -23,4 +23,16 @@ RSpec.describe ArelManiac::DistinctOn do
     sql = Land.distinct_on(:region).to_sql
     expect(sql).to match(/DISTINCT ON/i)
   end
+
+  it "handles count with distinct_on" do
+    expect(Land.distinct_on(:region).count).to eq(2)
+  end
+
+  it "handles count with multiple distinct_on columns" do
+    expect(Land.distinct_on(:region, :land_category).count).to eq(3)
+  end
+
+  it "raises on count with explicit column" do
+    expect { Land.distinct_on(:region).count(:id) }.to raise_error(ArgumentError)
+  end
 end

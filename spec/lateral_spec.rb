@@ -41,5 +41,19 @@ RSpec.describe ArelManiac::Lateral do
     subquery = Book.where("books.author_id = authors.id").limit(1)
     sql = Author.lateral_join(subquery, as: "recent").to_sql
     expect(sql).to match(/LATERAL/i)
+    expect(sql).to match(/ON TRUE/i)
+  end
+
+  it "allows selecting columns from lateral subquery" do
+    subquery = Book.select("books.title", "books.published_at")
+                   .where("books.author_id = authors.id")
+                   .order(published_at: :desc)
+                   .limit(1)
+
+    results = Author.lateral_join(subquery, as: "latest")
+                    .select("authors.name", "latest.title", "latest.published_at")
+
+    expect(results.first.name).to eq("Alice")
+    expect(results.first[:title]).to eq("Book B")
   end
 end
