@@ -82,8 +82,42 @@ Land
 ### Fast Count
 
 ```ruby
-Land.fast_count              # estimated count from pg_class
+Land.fast_count              # estimated count from pg_class (handles partitioned tables)
 Land.fast_count(10_000)      # fallback to COUNT(*) if estimate < threshold
+```
+
+### Estimated Count
+
+```ruby
+Land.where(region: "77").estimated_count  # EXPLAIN-based row estimate, no full scan
+```
+
+### Aggregate Functions
+
+```ruby
+ArelManiac.string_agg(Zone.arel_table[:name], ", ")
+ArelManiac.array_agg(Land.arel_table[:id], distinct: true)
+ArelManiac.generate_series(1, 10)
+ArelManiac.coalesce(Land.arel_table[:area_sq_m], Arel::Nodes.build_quoted(0))
+```
+
+## Optional Extensions
+
+### PostGIS (`require "arel_maniac/ext/postgis"`)
+
+Supplements rgeo-activerecord with missing spatial functions:
+
+```ruby
+geometry_node.st_dwithin(point, 0.001)
+geometry_node.st_tileenvelope(14, 9799, 5373)
+geometry_node.st_transform(4326)
+geometry_node.st_makeenvelope(-74, 40, -73, 41, 4326)
+```
+
+### ParadeDB (`require "arel_maniac/ext/paradedb"`)
+
+```ruby
+Land.arel_table[:id].paradedb_score  # paradedb.score() for BM25 ranking
 ```
 
 ## Rails Compatibility

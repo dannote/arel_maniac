@@ -14,6 +14,7 @@ module ArelManiac
   autoload :Unionize
   autoload :AnyOf
   autoload :Window
+  autoload :AggregateFunctions
 
   module Arel
     extend ActiveSupport::Autoload
